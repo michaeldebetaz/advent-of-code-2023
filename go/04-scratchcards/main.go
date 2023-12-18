@@ -28,19 +28,16 @@ func main() {
 		winning_numbers []int64
 		numbers         []int64
 		value           int
+		copies          int
 	}
 
-	cards := make(map[int]Card)
+	var cards []Card
 
 	for i := 0; scanner.Scan(); i++ {
-		card_index := i + 1
 		line := scanner.Text()
 
 		substrings := strings.Split(line, ": ")
-		// key := substrings[0]
-		value := substrings[1]
-
-		substr := strings.Split(value, " | ")
+		substr := strings.Split(substrings[1], " | ")
 		re_numbers := regexp.MustCompile(`\d+`)
 		left_numbers := re_numbers.FindAllString(substr[0], -1)
 		right_numbers := re_numbers.FindAllString(substr[1], -1)
@@ -48,19 +45,39 @@ func main() {
 		winning_numbers := to_integers(left_numbers)
 		numbers := to_integers(right_numbers)
 
-		cards[card_index] = Card{line, winning_numbers, numbers, 0}
+		card := Card{line, winning_numbers, numbers, 0, 1}
+		cards = append(cards, card)
 	}
 
 	sum := 0
-	for key, card := range cards {
-		card.value = compute_card_value(card.winning_numbers, card.numbers)
+	for index, card := range cards {
+		matches, value := get_matches_and_card_value(card.winning_numbers, card.numbers)
+
+		card.value = value
 		sum = sum + card.value
-		fmt.Printf("Line %v: %s\n", key, card.line)
+		cards[index] = card
+
+		for i := 0; i < matches; i++ {
+			card_index := index + i + 1
+			if card_index < len(cards) {
+				c := &cards[card_index]
+				c.copies = c.copies + (1 * card.copies)
+			}
+		}
+
+		fmt.Println(card.line)
 		fmt.Printf("Winning numbers: %v\n", card.winning_numbers)
 		fmt.Printf("Numbers: %v\n", card.numbers)
 		fmt.Printf("Value: %v\n", card.value)
 		fmt.Printf("Sum: %v\n", sum)
 	}
+
+	copies := 0
+	for index, card := range cards {
+		copies = copies + card.copies
+		fmt.Printf("Card %v: value = %v; copies = %v\n", index+1, card.value, card.copies)
+	}
+	fmt.Printf("Total copies = %v\n", copies)
 }
 
 func to_integers(strings []string) []int64 {
@@ -76,20 +93,20 @@ func to_integers(strings []string) []int64 {
 	return numbers
 }
 
-func compute_card_value(winning_numbers []int64, numbers []int64) int {
-	n_matches := 0
+func get_matches_and_card_value(winning_numbers []int64, numbers []int64) (int, int) {
+	matches := 0
 
 	for _, wn := range winning_numbers {
 		for _, n := range numbers {
 			if wn == n {
-				n_matches++
+				matches++
 			}
 		}
 	}
 
-	if n_matches == 0 {
-		return 0
+	if matches == 0 {
+		return matches, 0
 	} else {
-		return int(math.Pow(2, float64(n_matches-1)))
+		return matches, int(math.Pow(2, float64(matches-1)))
 	}
 }
