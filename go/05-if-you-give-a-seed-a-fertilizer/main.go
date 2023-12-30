@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"log"
 	"os"
+<<<<<<< Updated upstream
 	"strconv"
 	"strings"
+=======
+>>>>>>> Stashed changes
 )
 
 func main() {
@@ -26,6 +29,7 @@ func main() {
 		text = text + scanner.Text() + "\n"
 	}
 
+<<<<<<< Updated upstream
 	chunks := strings.Split(text, "\n\n")
 
 	seeds := getSeeds(chunks[0])
@@ -99,3 +103,8 @@ func parseInt(s string) int {
 	}
 	return n
 }
+=======
+	var seedToSoilMap []Map
+
+}
+>>>>>>> Stashed changes
