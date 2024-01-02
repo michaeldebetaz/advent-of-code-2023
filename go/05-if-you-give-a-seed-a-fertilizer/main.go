@@ -33,17 +33,39 @@ func main() {
 	fmt.Printf("Seeds: %v\n\n", seeds)
 	maps := getMaps(chunks, seeds)
 
-	var lowestLocation int
-	for i, seed := range seeds {
+	firstSeed := seeds[0]
+	lowestLocation := getLocation(firstSeed, maps)
+	for _, seed := range seeds {
 		location := getLocation(seed, maps)
-		if i == 0 || location < lowestLocation {
+		if location < lowestLocation {
 			lowestLocation = location
 		}
 	}
 	fmt.Printf("Lowest location (pt. 1): %v\n", lowestLocation)
 
-	// seedPairs := getSeedPairs(chunks[0])
+	seedPairs := getSeedPairs(chunks[0])
+	fmt.Printf("Seed pairs: %v\n\n", seedPairs)
 
+	firstSeed = seedPairs[0].Start
+	lowestLocation = getLocation(firstSeed, maps)
+	skip := 1_000
+	for _, pair := range seedPairs {
+		for i := 0; i <= pair.Range; i = i + skip {
+			seed := pair.Start + i
+			location := getLocation(seed, maps)
+			if location < lowestLocation {
+				lowestLocation = location
+				prevSeed := seed - skip
+				for s := prevSeed; s < seed; s++ {
+					location := getLocation(s, maps)
+					if location < lowestLocation {
+						lowestLocation = location
+					}
+				}
+			}
+		}
+	}
+	fmt.Printf("Lowest location (part. 2): %v\n\n", lowestLocation)
 }
 
 type SeedPair struct {
