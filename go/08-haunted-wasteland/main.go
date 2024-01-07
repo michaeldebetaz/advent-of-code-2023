@@ -82,7 +82,7 @@ func main() {
 	}
 	fmt.Printf("Node List: %v\n", nodeList)
 
-	nodeSteps := make(map[string]int)
+	var stepCylcles []int
 	for _, node := range nodeList {
 		// fmt.Printf("Node: %v\n", node)
 		found := false
@@ -98,34 +98,16 @@ func main() {
 				found = true
 			}
 		}
-		nodeSteps[node.Key] = steps
+		stepCylcles = append(stepCylcles, steps)
 	}
 
-	fmt.Printf("Node steps: %v\n", nodeSteps)
+	fmt.Printf("Step Cycles: %v\n", stepCylcles)
 
-	maxSteps := nodeSteps[nodeList[0].Key]
-	for _, steps := range nodeSteps {
-		if steps > maxSteps {
-			maxSteps = steps
-		}
-	}
-	fmt.Printf("Min Steps: %v\n", maxSteps)
+	s := stepCylcles
 
-	result := maxSteps
-	found := 0
-	for i := 1; found < len(nodeSteps); i++ {
-		v := maxSteps * i
-		found = 0
-		for _, steps := range nodeSteps {
-			fmt.Printf("Steps: %v, V: %v\n", steps, v)
-			if v%steps == 0 {
-				found++
-			}
-			fmt.Printf("Found: %v\n", found)
-		}
-		result = v
-	}
-	fmt.Printf("Result: %v\n", result)
+	steps = findLeastCommonMultiple(s[0], s[1], s[2], s[3], s[4], s[5])
+
+	fmt.Printf("Steps (Part. 2): %v\n", steps)
 }
 
 func findNode(nodes []Node, key string) Node {
@@ -159,4 +141,23 @@ func everyNodeKeyEndsWithZ(nodes []Node) bool {
 		}
 	}
 	return true
+}
+
+func findGreatestCommonDivisor(a int, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+func findLeastCommonMultiple(a int, b int, n ...int) int {
+	result := (a * b) / findGreatestCommonDivisor(a, b)
+
+	for i := 0; i < len(n); i++ {
+		result = findLeastCommonMultiple(result, n[i])
+	}
+
+	return result
 }
